@@ -106,10 +106,6 @@ for matche in matches:
         except:
             file.write(f'{'None'}\n')
 
-
-
-
-
     metro = soup.find('div', class_='Place_metro__sSZ56')
     try:
         file.write(f'{metro.text}\n\n')
@@ -118,65 +114,3 @@ for matche in matches:
     print('\n')
 
 
-
-#
-# names = soup.find_all('span', class_='Text_text__e9ILn Template_title__3vIhm')
-# print("NAMESSSSSSSSSSSSSSSSSSSSSSSSSSS")
-# for name in names:
-#     print(name.text, '\n')
-#     #file.write(f'{name.text}\n')
-#
-# kitchens = soup.find_all('span', class_='Text_text__e9ILn TypeAndPrice_type-url__5phPv')
-#
-# print("KITCHENSSSSSSSSSS")
-# for kitchen in kitchens:
-#     print(kitchen.text, '\n')
-#     #file.write(f'{name.text}\n')
-#
-# times = soup.find_all('p', class_='Text_text__e9ILn ScheduleAndPrice_schedule__Rv03e')
-# print("timesSSSS")
-# for time in times:
-#     print(time.text, '\n')
-#     #file.write(f'{name.text}\n')
-#
-# metros = soup.find_all('span', class_='Rating_rating__NLDVH')
-# print("METROOOSSSSS")
-# for metro in metros:
-#     print(metro.text, '\n')
-#     #file.write(f'{name.text}\n')
-# print("RATESSSSSSSSSSSSSSSSSSSSSS")
-# rates = soup.find_all('span', class_='sight-score__value')
-# for rate in rates:
-#     try:
-#         file.write(f'{rate.text}\n')
-#     except:
-#         file.write(f'{None}\n')
-# print("CORDSSSSSSSSSSSSSSSSSSSSSSSSS")
-# cords = soup.find_all('a', class_='adrlink [ js-sight-popup-map ]')
-# for cord in cords:
-#     pattern = r'pt=([\d\.\-]+),\s*([\d\.\-]+)'
-#     match = re.search(pattern, cord.get('href'))
-#     if match:
-#         latitude = match.group(1)
-#         longitude = match.group(2)
-#         file.write(f'{latitude}' + ',' + f'{longitude}\n')
-#     else:
-#         file.write(f'{None}\n')
-#
-# print("SITESSSSSSSSSSSSSSSSSS")
-# sites = soup.find_all('a', class_='sitelink')
-# for site in sites:
-#     try:
-#         file.write(f'{site.text}\n')
-#     except:
-#         file.write(f'{'None'}\n')
-#
-#
-# print("BULETSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
-# bullets = soup.find_all('a', class_='sightcatexc')
-# for bullet in bullets:
-#     try:
-#         file.write(f'{bullet.get('href')}\n')
-#     except:
-#         file.write(f'{None}\n')
-# file.close()
