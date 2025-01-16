@@ -1,47 +1,49 @@
-// Sample data (replace this with your Python dataset)
-const sampleData = {
-    labels: ['January', 'February', 'March', 'April', 'May'],
-    values: [65, 59, 80, 81, 56],
-    categories: ['A', 'B', 'A', 'C', 'B']
-};
-
 let chart1, chart2;
 
 // Initialize charts when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-    initializeCharts('basic');
-    updateStatistics();
-    populateTable();
-    setupEventListeners();
+document.addEventListener('DOMContentLoaded', async function () {
+    const data = await fetchData(); // Load data from JSON
+    initializeCharts('basic', data);
+    updateStatistics(data);
+    populateTable(data);
+    setupEventListeners(data);
 });
 
-function setupEventListeners() {
+// Fetch data from JSON file
+async function fetchData() {
+    const response = await fetch('C:/Users/pisma/Desktop/TOUR_DB/tourism_dashboard.json'); // Укажите путь к JSON-файлу
+    return await response.json();
+}
+
+function setupEventListeners(data) {
     const buttons = document.querySelectorAll('.control-btn');
     buttons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             // Remove active class from all buttons
             buttons.forEach(btn => btn.classList.remove('active'));
             // Add active class to clicked button
             this.classList.add('active');
             // Update charts based on selected view
-            updateCharts(this.dataset.view);
+            updateCharts(this.dataset.view, data);
         });
     });
 }
 
-function updateCharts(view) {
+function updateCharts(view, data) {
     // Destroy existing charts
     if (chart1) chart1.destroy();
     if (chart2) chart2.destroy();
-    
+
     // Initialize new charts based on view
-    initializeCharts(view);
+    initializeCharts(view, data);
 }
 
-function calculateStatistics() {
-    const values = sampleData.values;
-    const mean = values.reduce((a, b) => a + b, 0) / values.length;
-    const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length;
+function calculateStatistics(data) {
+    const values = data.values;
+    const mean =
+        values.reduce((a, b) => a + b, 0) / values.length;
+    const variance =
+        values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length;
     const stdDev = Math.sqrt(variance);
 
     return {
@@ -49,22 +51,22 @@ function calculateStatistics() {
         mean: mean.toFixed(2),
         max: Math.max(...values),
         min: Math.min(...values),
-        stdDev: stdDev.toFixed(2)
+        stdDev: stdDev.toFixed(2),
     };
 }
 
-function getCategoryData() {
+function getCategoryData(data) {
     const categoryCount = {};
     const categoryAvg = {};
     const categorySums = {};
-    
-    sampleData.categories.forEach((cat, idx) => {
+
+    data.categories.forEach((cat, idx) => {
         if (!categoryCount[cat]) {
             categoryCount[cat] = 0;
             categorySums[cat] = 0;
         }
         categoryCount[cat]++;
-        categorySums[cat] += sampleData.values[idx];
+        categorySums[cat] += data.values[idx];
     });
 
     Object.keys(categoryCount).forEach(cat => {
@@ -74,94 +76,49 @@ function getCategoryData() {
     return { categoryCount, categoryAvg };
 }
 
-function initializeCharts(view) {
+function initializeCharts(view, data) {
     const ctx1 = document.getElementById('chart1').getContext('2d');
     const ctx2 = document.getElementById('chart2').getContext('2d');
 
-    switch(view) {
+    switch (view) {
         case 'basic':
             chart1 = new Chart(ctx1, {
                 type: 'line',
                 data: {
-                    labels: sampleData.labels,
+                    labels: data.labels,
                     datasets: [{
                         label: 'Values Over Time',
-                        data: sampleData.values,
+                        data: data.values,
                         borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-
-            chart2 = new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: sampleData.labels,
-                    datasets: [{
-                        label: 'Values by Period',
-                        data: sampleData.values,
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-            break;
-
-        case 'distribution':
-            // Create histogram data
-            const binSize = 10;
-            const bins = {};
-            sampleData.values.forEach(value => {
-                const binIndex = Math.floor(value / binSize) * binSize;
-                bins[binIndex] = (bins[binIndex] || 0) + 1;
-            });
-
-            chart1 = new Chart(ctx1, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(bins),
-                    datasets: [{
-                        label: 'Value Distribution',
-                        data: Object.values(bins),
-                        backgroundColor: 'rgba(153, 102, 255, 0.5)'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-
-            // Box plot data
-            const stats = calculateStatistics();
-            chart2 = new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: ['Statistics'],
-                    datasets: [{
-                        label: 'Min-Max Range',
-                        data: [stats.max - stats.min],
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)'
-                    }]
+                        tension: 0.1,
+                    }],
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    indexAxis: 'y'
-                }
+                },
+            });
+
+            chart2 = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Values by Period',
+                        data: data.values,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                },
             });
             break;
 
         case 'category':
-            const { categoryCount, categoryAvg } = getCategoryData();
-            
+            const { categoryCount, categoryAvg } = getCategoryData(data);
+
             chart1 = new Chart(ctx1, {
                 type: 'pie',
                 data: {
@@ -171,14 +128,14 @@ function initializeCharts(view) {
                         backgroundColor: [
                             'rgba(255, 99, 132, 0.5)',
                             'rgba(54, 162, 235, 0.5)',
-                            'rgba(255, 206, 86, 0.5)'
-                        ]
-                    }]
+                            'rgba(255, 206, 86, 0.5)',
+                        ],
+                    }],
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false
-                }
+                    maintainAspectRatio: false,
+                },
             });
 
             chart2 = new Chart(ctx2, {
@@ -188,80 +145,22 @@ function initializeCharts(view) {
                     datasets: [{
                         label: 'Average Value by Category',
                         data: Object.values(categoryAvg),
-                        backgroundColor: 'rgba(75, 192, 192, 0.5)'
-                    }]
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    }],
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false
-                }
+                    maintainAspectRatio: false,
+                },
             });
             break;
 
-        case 'trend':
-            // Calculate moving average
-            const movingAvg = [];
-            const window = 2;
-            for (let i = 0; i < sampleData.values.length; i++) {
-                let sum = 0;
-                let count = 0;
-                for (let j = Math.max(0, i - window); j <= Math.min(sampleData.values.length - 1, i + window); j++) {
-                    sum += sampleData.values[j];
-                    count++;
-                }
-                movingAvg.push(sum / count);
-            }
-
-            chart1 = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: sampleData.labels,
-                    datasets: [{
-                        label: 'Actual Values',
-                        data: sampleData.values,
-                        borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1
-                    }, {
-                        label: 'Moving Average',
-                        data: movingAvg,
-                        borderColor: 'rgb(255, 99, 132)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-
-            // Calculate period-over-period changes
-            const changes = sampleData.values.map((value, index) => 
-                index > 0 ? ((value - sampleData.values[index - 1]) / sampleData.values[index - 1] * 100).toFixed(1) : 0
-            );
-
-            chart2 = new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: sampleData.labels.slice(1),
-                    datasets: [{
-                        label: 'Period-over-Period Change (%)',
-                        data: changes.slice(1),
-                        backgroundColor: changes.map(change => 
-                            change > 0 ? 'rgba(75, 192, 192, 0.5)' : 'rgba(255, 99, 132, 0.5)'
-                        )
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-            break;
+        // Add more cases as needed
     }
 }
 
-function updateStatistics() {
-    const stats = calculateStatistics();
+function updateStatistics(data) {
+    const stats = calculateStatistics(data);
     document.getElementById('totalRecords').textContent = stats.total;
     document.getElementById('avgValue').textContent = stats.mean;
     document.getElementById('maxValue').textContent = stats.max;
@@ -269,15 +168,15 @@ function updateStatistics() {
     document.getElementById('stdDev').textContent = stats.stdDev;
 }
 
-function populateTable() {
+function populateTable(data) {
     const tbody = document.querySelector('#dataTable tbody');
     tbody.innerHTML = ''; // Clear existing rows
-    sampleData.labels.forEach((label, index) => {
+    data.labels.forEach((label, index) => {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${index + 1}</td>
-            <td>${sampleData.values[index]}</td>
-            <td>${sampleData.categories[index]}</td>
+            <td>${data.values[index]}</td>
+            <td>${data.categories[index]}</td>
         `;
         tbody.appendChild(row);
     });

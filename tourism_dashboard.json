@@ -1,0 +1,48 @@
+{
+    "labels": [
+        "kuBZRkVsAR",
+        "aHKUXhjzTo",
+        "dlrdYtJFTA",
+        "DxmlzdGkHK",
+        "WJCCQlepnz",
+        "IKdhVWFKRc",
+        "TKEPcTbQFY",
+        "TjmJpYuNne",
+        "OcCopAsiyJ",
+        "pXDJPYzTeU"
+    ],
+    "values": [
+        948853,
+        813627,
+        508673,
+        623329,
+        124867,
+        389886,
+        416933,
+        652046,
+        59309,
+        319068
+    ],
+    "categories": [
+        "Nature",
+        "Historical",
+        "Nature",
+        "Historical",
+        "Cultural",
+        "Cultural",
+        "Beach",
+        "Historical",
+        "Cultural",
+        "Adventure"
+    ],
+    "statistics": {
+        "total_records": 10,
+        "mean_visitors": 485659.1,
+        "mean_rating": 2.2,
+        "mean_revenue": 538201.35,
+        "max_visitors": 948853,
+        "min_visitors": 59309,
+        "max_revenue": 943411.34,
+        "min_revenue": 84388.38
+    }
+}

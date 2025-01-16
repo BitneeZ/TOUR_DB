@@ -1,39 +1,47 @@
 import json
-import numpy as np
-from collections import defaultdict
+import pandas as pd
 
-def process_dataset():
-    # Sample data processing with more statistical information
-    data = {
-        "labels": ["January", "February", "March", "April", "May"],
-        "values": [65, 59, 80, 81, 56],
-        "categories": ["A", "B", "A", "C", "B"]
+def process_dataset(file_path):
+    # Load dataset using pandas
+    df = pd.read_csv(file_path)
+
+    # Ensure required columns exist
+    required_columns = {"labels", "values", "categories"}
+    if not required_columns.issubset(df.columns):
+        raise ValueError(f"Dataset must contain the following columns: {required_columns}")
+
+    # Extract data for processing
+    labels = df["labels"].tolist()
+    values = df["values"]
+    categories = df["categories"]
+
+    # Calculate overall statistics
+    overall_stats = {
+        "mean": values.mean(),
+        "median": values.median(),
+        "std": values.std(),
+        "min": values.min(),
+        "max": values.max()
     }
-    
-    # Calculate additional statistics
-    values = np.array(data["values"])
-    categories = data["categories"]
-    
-    # Category-wise statistics
-    category_stats = defaultdict(list)
-    for val, cat in zip(values, categories):
-        category_stats[cat].append(val)
-    
-    data["statistics"] = {
-        "mean": float(np.mean(values)),
-        "median": float(np.median(values)),
-        "std": float(np.std(values)),
-        "min": float(np.min(values)),
-        "max": float(np.max(values)),
-        "category_means": {
-            cat: float(np.mean(vals)) 
-            for cat, vals in category_stats.items()
+
+    # Calculate category-wise statistics
+    category_means = values.groupby(categories).mean().to_dict()
+
+    # Prepare data for output
+    data = {
+        "labels": labels,
+        "values": values.tolist(),
+        "categories": categories.tolist(),
+        "statistics": {
+            **overall_stats,
+            "category_means": {str(k): float(v) for k, v in category_means.items()}
         }
     }
-    
+
     # Save to JSON file that will be read by the dashboard
     with open('data.json', 'w') as f:
-        json.dump(data, f)
+        json.dump(data, f, indent=4)
 
 if __name__ == "__main__":
-    process_dataset()
+    # Replace 'your_dataset.csv' with the path to your CSV file
+    process_dataset("TOUR_DB/tourism_dataset.csv")
