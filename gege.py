@@ -7,6 +7,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 import re
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
+
 
 #task2 https://www.afisha.ru/msk/restaurants/restaurant_list/
 
@@ -24,21 +26,42 @@ while True:
     # Прокрутка вниз
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     try:
-        button = driver.find_element(By.CLASS_NAME, 'popmechanic-close')
-        button.click()
-        print('ADD WAS CLOSED!')
+        try:
+            # Пытаемся найти кнопку
+            button = driver.find_element(By.CLASS_NAME, 'popmechanic-close')
+            try:
+                # Пытаемся кликнуть по кнопке
+                button.click()
+                print('ADD WAS CLOSED!')
+
+            except ElementClickInterceptedException:
+                print("Клик по элементу был прерван. Продолжаем выполнение.")
+        except NoSuchElementException:
+            print("Элемент с классом 'popmechanic-close' не найден. Продолжаем выполнение.")
     except:
-        button = driver.find_element(By.CLASS_NAME, 'ButtonLoadMore_show-more-button__FXKXn')
-        button.click()
-        taps += 1
-        print("CLICKED!")
+        pass
+    try:
+        try:
+            # Пытаемся найти кнопку
+            button = driver.find_element(By.CLASS_NAME, 'ButtonLoadMore_show-more-button__FXKXn')
+            try:
+                # Пытаемся кликнуть по кнопке
+                button.click()
+                print('CLICKED!')
+                taps += 1
+            except ElementClickInterceptedException:
+                print("Клик по элементу был прерван. Продолжаем выполнение.")
+        except NoSuchElementException:
+            print("Элемент с классом 'ButtonLoadMore_show' не найден. Продолжаем выполнение.")
+    except:
+        pass
     # Ожидание загрузки контента
     time.sleep(4)  # Увеличьте время, если контент загружается медленно
     print("WAITED!")
     # Проверка новой высоты страницы
     new_height = driver.execute_script("return document.body.scrollHeight")
     print(taps)
-    if new_height == last_height or taps == 150:
+    if new_height == last_height or taps == 498:
         break
     #last_height = new_height
 
@@ -46,13 +69,12 @@ while True:
 html_code = driver.page_source
 driver.quit()
 soup = BeautifulSoup(html_code, 'html.parser')
-file = open('data2.txt', 'w', encoding='utf-8')
 
 
 matches = soup.find_all('div', class_='CardTwoBlock_card__GFR2L Template_card__ZnZUD Listing_card__hNL_B')
 
 # Создание CSV файла
-with open('dataset.csv', mode='w', newline='', encoding='utf-8') as file:
+with open('dataset2.csv', mode='w', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
 
     # Запись заголовков столбцов
