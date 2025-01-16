@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dataset Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard">
+        <header>
+            <h1>Dataset Dashboard</h1>
+        </header>
+        
+        <div class="controls">
+            <div class="button-group">
+                <button class="control-btn active" data-view="basic">Basic Stats</button>
+                <button class="control-btn" data-view="distribution">Distribution</button>
+                <button class="control-btn" data-view="category">Category Analysis</button>
+                <button class="control-btn" data-view="trend">Trend Analysis</button>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <div class="card">
+                <h2>Chart 1</h2>
+                <canvas id="chart1"></canvas>
+            </div>
+            
+            <div class="card">
+                <h2>Chart 2</h2>
+                <canvas id="chart2"></canvas>
+            </div>
+            
+            <div class="card">
+                <h2>Statistics</h2>
+                <div id="stats">
+                    <p>Total Records: <span id="totalRecords">0</span></p>
+                    <p>Average Value: <span id="avgValue">0</span></p>
+                    <p>Max Value: <span id="maxValue">0</span></p>
+                    <p>Min Value: <span id="minValue">0</span></p>
+                    <p>Standard Deviation: <span id="stdDev">0</span></p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Data Table</h2>
+                <div class="table-container">
+                    <table id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Value</th>
+                                <th>Category</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
