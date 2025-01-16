@@ -1,82 +1,91 @@
-let chart1, chart2;
+// JSON data embedded directly into the script for local use
+const jsonData = {
+    "labels": [
+        "kuBZRkVsAR",
+        "aHKUXhjzTo",
+        "dlrdYtJFTA",
+        "DxmlzdGkHK",
+        "WJCCQlepnz",
+        "IKdhVWFKRc",
+        "TKEPcTbQFY",
+        "TjmJpYuNne",
+        "OcCopAsiyJ",
+        "pXDJPYzTeU"
+    ],
+    "values": [
+        948853,
+        813627,
+        508673,
+        623329,
+        124867,
+        389886,
+        416933,
+        652046,
+        59309,
+        319068
+    ],
+    "categories": [
+        "Nature",
+        "Historical",
+        "Nature",
+        "Historical",
+        "Cultural",
+        "Cultural",
+        "Beach",
+        "Historical",
+        "Cultural",
+        "Adventure"
+    ],
+    "statistics": {
+        "total_records": 10,
+        "mean_visitors": 485659.1,
+        "mean_rating": 2.2,
+        "mean_revenue": 538201.35,
+        "max_visitors": 948853,
+        "min_visitors": 59309,
+        "max_revenue": 943411.34,
+        "min_revenue": 84388.38
+    }
+};
 
-// Initialize charts when the page loads
-document.addEventListener('DOMContentLoaded', async function () {
-    const data = await fetchData(); // Load data from JSON
-    initializeCharts('basic', data);
-    updateStatistics(data);
-    populateTable(data);
-    setupEventListeners(data);
+let chart1, chart2; // Global chart variables
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Load JSON data and set up initial view
+    loadJSONData(jsonData);
+
+    // Set up event listeners for buttons
+    setupEventListeners();
 });
 
-// Fetch data from JSON file
-async function fetchData() {
-    const response = await fetch('C:/Users/pisma/Desktop/TOUR_DB/tourism_dashboard.json'); // Укажите путь к JSON-файлу
-    return await response.json();
+function loadJSONData(data) {
+    try {
+        updateCharts('basic', data);
+        populateStatistics(data.statistics);
+        populateTable(data);
+    } catch (error) {
+        console.error('Error loading JSON data:', error);
+    }
 }
 
-function setupEventListeners(data) {
+function setupEventListeners() {
     const buttons = document.querySelectorAll('.control-btn');
     buttons.forEach(button => {
         button.addEventListener('click', function () {
-            // Remove active class from all buttons
             buttons.forEach(btn => btn.classList.remove('active'));
-            // Add active class to clicked button
             this.classList.add('active');
-            // Update charts based on selected view
-            updateCharts(this.dataset.view, data);
+
+            const view = this.dataset.view;
+            if (view) updateCharts(view, jsonData);
         });
     });
 }
 
+// Update charts based on the selected view
 function updateCharts(view, data) {
-    // Destroy existing charts
     if (chart1) chart1.destroy();
     if (chart2) chart2.destroy();
 
-    // Initialize new charts based on view
-    initializeCharts(view, data);
-}
-
-function calculateStatistics(data) {
-    const values = data.values;
-    const mean =
-        values.reduce((a, b) => a + b, 0) / values.length;
-    const variance =
-        values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length;
-    const stdDev = Math.sqrt(variance);
-
-    return {
-        total: values.length,
-        mean: mean.toFixed(2),
-        max: Math.max(...values),
-        min: Math.min(...values),
-        stdDev: stdDev.toFixed(2),
-    };
-}
-
-function getCategoryData(data) {
-    const categoryCount = {};
-    const categoryAvg = {};
-    const categorySums = {};
-
-    data.categories.forEach((cat, idx) => {
-        if (!categoryCount[cat]) {
-            categoryCount[cat] = 0;
-            categorySums[cat] = 0;
-        }
-        categoryCount[cat]++;
-        categorySums[cat] += data.values[idx];
-    });
-
-    Object.keys(categoryCount).forEach(cat => {
-        categoryAvg[cat] = categorySums[cat] / categoryCount[cat];
-    });
-
-    return { categoryCount, categoryAvg };
-}
-
-function initializeCharts(view, data) {
     const ctx1 = document.getElementById('chart1').getContext('2d');
     const ctx2 = document.getElementById('chart2').getContext('2d');
 
@@ -87,16 +96,16 @@ function initializeCharts(view, data) {
                 data: {
                     labels: data.labels,
                     datasets: [{
-                        label: 'Values Over Time',
+                        label: 'Visitors Over Locations',
                         data: data.values,
                         borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1,
-                    }],
+                        tension: 0.1
+                    }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
-                },
+                    maintainAspectRatio: false
+                }
             });
 
             chart2 = new Chart(ctx2, {
@@ -104,20 +113,68 @@ function initializeCharts(view, data) {
                 data: {
                     labels: data.labels,
                     datasets: [{
-                        label: 'Values by Period',
+                        label: 'Visitors by Category',
                         data: data.values,
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                    }],
+                        backgroundColor: 'rgba(153, 102, 255, 0.5)'
+                    }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: false
+                }
+            });
+            break;
+
+        case 'distribution':
+            const binSize = 100;
+            const bins = {};
+            data.values.forEach(value => {
+                const binIndex = Math.floor(value / binSize) * binSize;
+                bins[binIndex] = (bins[binIndex] || 0) + 1;
+            });
+
+            chart1 = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(bins),
+                    datasets: [{
+                        label: 'Visitor Distribution',
+                        data: Object.values(bins),
+                        backgroundColor: 'rgba(255, 159, 64, 0.5)'
+                    }]
                 },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            chart2 = new Chart(ctx2, {
+                type: 'pie',
+                data: {
+                    labels: data.categories,
+                    datasets: [{
+                        label: 'Category Distribution',
+                        data: data.categories.map(cat => data.categories.filter(c => c === cat).length),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.5)',
+                            'rgba(54, 162, 235, 0.5)',
+                            'rgba(75, 192, 192, 0.5)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
             });
             break;
 
         case 'category':
-            const { categoryCount, categoryAvg } = getCategoryData(data);
+            const categoryCount = {};
+            data.categories.forEach(cat => {
+                categoryCount[cat] = (categoryCount[cat] || 0) + 1;
+            });
 
             chart1 = new Chart(ctx1, {
                 type: 'pie',
@@ -128,49 +185,101 @@ function initializeCharts(view, data) {
                         backgroundColor: [
                             'rgba(255, 99, 132, 0.5)',
                             'rgba(54, 162, 235, 0.5)',
-                            'rgba(255, 206, 86, 0.5)',
-                        ],
-                    }],
+                            'rgba(255, 206, 86, 0.5)'
+                        ]
+                    }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
-                },
+                    maintainAspectRatio: false
+                }
             });
 
             chart2 = new Chart(ctx2, {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(categoryAvg),
+                    labels: Object.keys(categoryCount),
                     datasets: [{
-                        label: 'Average Value by Category',
-                        data: Object.values(categoryAvg),
-                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                    }],
+                        label: 'Category Count',
+                        data: Object.values(categoryCount),
+                        backgroundColor: 'rgba(153, 102, 255, 0.5)'
+                    }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
-                },
+                    maintainAspectRatio: false
+                }
             });
             break;
 
-        // Add more cases as needed
+        case 'trend':
+            const movingAvg = [];
+            const window = 2;
+            for (let i = 0; i < data.values.length; i++) {
+                let sum = 0;
+                let count = 0;
+                for (let j = Math.max(0, i - window); j <= Math.min(data.values.length - 1, i + window); j++) {
+                    sum += data.values[j];
+                    count++;
+                }
+                movingAvg.push(sum / count);
+            }
+
+            chart1 = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Actual Values',
+                        data: data.values,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }, {
+                        label: 'Moving Average',
+                        data: movingAvg,
+                        borderColor: 'rgb(255, 99, 132)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            chart2 = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Changes',
+                        data: data.values.map((v, i) => i > 0 ? v - data.values[i - 1] : 0),
+                        backgroundColor: 'rgba(255, 205, 86, 0.5)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            break;
     }
 }
 
-function updateStatistics(data) {
-    const stats = calculateStatistics(data);
-    document.getElementById('totalRecords').textContent = stats.total;
-    document.getElementById('avgValue').textContent = stats.mean;
-    document.getElementById('maxValue').textContent = stats.max;
-    document.getElementById('minValue').textContent = stats.min;
-    document.getElementById('stdDev').textContent = stats.stdDev;
+// Populate statistics
+function populateStatistics(stats) {
+    document.getElementById('totalRecords').textContent = stats.total_records;
+    document.getElementById('avgValue').textContent = stats.mean_visitors.toFixed(2);
+    document.getElementById('maxValue').textContent = stats.max_visitors;
+    document.getElementById('minValue').textContent = stats.min_visitors;
+    document.getElementById('stdDev').textContent = 'N/A'; // Add if you compute this in JSON
 }
 
+// Populate table
 function populateTable(data) {
     const tbody = document.querySelector('#dataTable tbody');
     tbody.innerHTML = ''; // Clear existing rows
+
     data.labels.forEach((label, index) => {
         const row = document.createElement('tr');
         row.innerHTML = `
