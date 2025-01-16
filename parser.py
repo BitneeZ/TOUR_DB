@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from lxml import html
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+import re
 
 #task2 https://extraguide.ru/russia/moscow/sights/
 
@@ -36,22 +37,47 @@ while True:
 html_code = driver.page_source
 driver.quit()
 soup = BeautifulSoup(html_code, 'html.parser')
-names = soup.find_all('h2')
-for new in names:
-    print(new.text, "\n\n")
 
+file = open('data.txt', 'w')
+
+names = soup.find_all('h2')
+print("NAEMSSSSSSSSSSSSSSSSSSSSSSSSSSS")
+for name in names:
+    file.write(f'{name.text}\n')
+
+print("RATESSSSSSSSSSSSSSSSSSSSSS")
 rates = soup.find_all('span', class_='sight-score__value')
 for rate in rates:
-    print(rate.text, "\n\n")
-
+    try:
+        file.write(f'{rate.text}\n')
+    except:
+        file.write(f'{None}\n')
+print("CORDSSSSSSSSSSSSSSSSSSSSSSSSS")
 cords = soup.find_all('a', class_='adrlink [ js-sight-popup-map ]')
 for cord in cords:
-    print(cord.text, "\n\n")
+    pattern = r'pt=([\d\.\-]+),\s*([\d\.\-]+)'
+    match = re.search(pattern, cord.get('href'))
+    if match:
+        latitude = match.group(1)
+        longitude = match.group(2)
+        file.write(f'{latitude}' + ',' + f'{longitude}\n')
+    else:
+        file.write(f'{None}\n')
 
+print("SITESSSSSSSSSSSSSSSSSS")
 sites = soup.find_all('a', class_='sitelink')
 for site in sites:
-    print(site.text, "\n\n")
+    try:
+        file.write(f'{site.text}\n')
+    except:
+        file.write(f'{'None'}\n')
 
-bullets = soup.find_all('a', class_='sightvcatex')
+
+print("BULETSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
+bullets = soup.find_all('a', class_='sightcatexc')
 for bullet in bullets:
-    print(bullet.text, '\n\n')
+    try:
+        file.write(f'{bullet.get('href')}\n')
+    except:
+        file.write(f'{None}\n')
+file.close()
