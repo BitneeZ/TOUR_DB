@@ -37,7 +37,7 @@ while True:
     print("WAITED!")
     # Проверка новой высоты страницы
     new_height = driver.execute_script("return document.body.scrollHeight")
-    if new_height == last_height or taps == 10:
+    if new_height == last_height or taps == 1:
         break
     #last_height = new_height
 
@@ -76,12 +76,46 @@ for matche in matches:
     except:
         file.write(f'{'None'}\n')
 
+    price = soup.find('span', {
+        'class': 'PriceRange_price-range-wrap__bRS6r PriceRange_price-range-wrap--black__Z95uY PriceRange_link__UrWzf undefined'})
+    html = (f'<html>\n<body>\n{matche}\n<body>\n<html>')
+    soup = BeautifulSoup(html, 'html.parser')
+    active_prices = soup.find_all('span', {'data-active': 'true'})
+    count = 0
+    for price in active_prices:
+        count += 1
+
+    if count == 1:
+        try:
+            file.write(f'700\n')
+        except:
+            file.write(f'{'None'}\n')
+    elif count == 2:
+        try:
+            file.write(f'700 - 1700\n')
+        except:
+            file.write(f'{'None'}\n')
+    elif count == 3:
+        try:
+            file.write(f'1700 - 3000\n')
+        except:
+            file.write(f'{'None'}\n')
+    elif count == 4:
+        try:
+            file.write(f'3000\n')
+        except:
+            file.write(f'{'None'}\n')
+
+
+
+
 
     metro = soup.find('div', class_='Place_metro__sSZ56')
     try:
         file.write(f'{metro.text}\n\n')
     except:
         file.write(f'{'None'}\n')
+    print('\n')
 
 
 
