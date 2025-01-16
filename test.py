@@ -64,7 +64,7 @@ def convert_csv_to_json(csv_file_path, json_output_path, num_rows=10):
         output_data = {
             "labels": sample_data['Location'].tolist(),
             "values": sample_data['Visitors'].tolist(),
-            "categories": sample_data['Category'].tolist(),
+            "categories": sample_data['Country'].tolist(),
             "statistics": statistics
         }
 
@@ -82,4 +82,4 @@ csv_file_path = 'C:/Users/pisma/Desktop/TOUR_DB/tourism_dataset.csv'  # Заме
 json_output_path = 'C:/Users/pisma/Desktop/TOUR_DB/tourism_dashboard.json'  # Путь для сохранения JSON
 
 # Запуск функции с выборкой первых 10 строк
-convert_csv_to_json(csv_file_path, json_output_path, num_rows=10)
+convert_csv_to_json(csv_file_path, json_output_path, num_rows=20)
