@@ -45,26 +45,26 @@ const jsonData = {
         73266
     ],
     "categories": [
-        "Nature",
-        "Historical",
-        "Nature",
-        "Historical",
-        "Cultural",
-        "Cultural",
-        "Beach",
-        "Historical",
-        "Cultural",
-        "Adventure",
-        "Urban",
-        "Cultural",
-        "Urban",
-        "Adventure",
-        "Nature",
-        "Beach",
-        "Historical",
-        "Nature",
-        "Beach",
-        "Beach"
+        "India",
+        "USA",
+        "Brazil",
+        "Brazil",
+        "France",
+        "Egypt",
+        "China",
+        "China",
+        "Australia",
+        "India",
+        "Australia",
+        "China",
+        "Australia",
+        "Egypt",
+        "Australia",
+        "Australia",
+        "Brazil",
+        "Australia",
+        "China",
+        "France"
     ],
     "statistics": {
         "total_records": 20,
@@ -126,7 +126,7 @@ function updateCharts(view, data) {
                 data: {
                     labels: data.labels,
                     datasets: [{
-                        label: 'Visitors Over Locations',
+                        label: 'Посещения в места',
                         data: data.values,
                         borderColor: 'rgb(75, 192, 192)',
                         tension: 0.1
@@ -143,7 +143,7 @@ function updateCharts(view, data) {
                 data: {
                     labels: data.labels,
                     datasets: [{
-                        label: 'Visitors by Category',
+                        label: 'Посещения в места',
                         data: data.values,
                         backgroundColor: 'rgba(153, 102, 255, 0.5)'
                     }]

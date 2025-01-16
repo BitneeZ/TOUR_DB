@@ -64,7 +64,7 @@ def convert_csv_to_json(csv_file_path, json_output_path, num_rows=10):
         output_data = {
             "labels": sample_data['Location'].tolist(),
             "values": sample_data['Visitors'].tolist(),
-            "categories": sample_data['Category'].tolist(),
+            "categories": sample_data['Country'].tolist(),
             "statistics": statistics
         }
 
