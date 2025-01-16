@@ -10,7 +10,17 @@ const jsonData = {
         "TKEPcTbQFY",
         "TjmJpYuNne",
         "OcCopAsiyJ",
-        "pXDJPYzTeU"
+        "pXDJPYzTeU",
+        "dUCLjskBYA",
+        "SqaAyIDkbd",
+        "JtZrdaVVxi",
+        "fXEdOCMpsk",
+        "nsTgMvrDSM",
+        "sYmhNXNKxf",
+        "VysItOmfmB",
+        "hFHhWNcgCG",
+        "RWukKcGUbw",
+        "eadWeHXmAV"
     ],
     "values": [
         948853,
@@ -22,7 +32,17 @@ const jsonData = {
         416933,
         652046,
         59309,
-        319068
+        319068,
+        25568,
+        310407,
+        767695,
+        797939,
+        677168,
+        520163,
+        418753,
+        412795,
+        96904,
+        73266
     ],
     "categories": [
         "Nature",
@@ -34,17 +54,27 @@ const jsonData = {
         "Beach",
         "Historical",
         "Cultural",
-        "Adventure"
+        "Adventure",
+        "Urban",
+        "Cultural",
+        "Urban",
+        "Adventure",
+        "Nature",
+        "Beach",
+        "Historical",
+        "Nature",
+        "Beach",
+        "Beach"
     ],
     "statistics": {
-        "total_records": 10,
-        "mean_visitors": 485659.1,
-        "mean_rating": 2.2,
-        "mean_revenue": 538201.35,
+        "total_records": 20,
+        "mean_visitors": 447862.45,
+        "mean_rating": 2.42,
+        "mean_revenue": 530464.39,
         "max_visitors": 948853,
-        "min_visitors": 59309,
-        "max_revenue": 943411.34,
-        "min_revenue": 84388.38
+        "min_visitors": 25568,
+        "max_revenue": 989416.73,
+        "min_revenue": 13352.38
     }
 };
 
@@ -272,7 +302,7 @@ function populateStatistics(stats) {
     document.getElementById('avgValue').textContent = stats.mean_visitors.toFixed(2);
     document.getElementById('maxValue').textContent = stats.max_visitors;
     document.getElementById('minValue').textContent = stats.min_visitors;
-    document.getElementById('stdDev').textContent = 'N/A'; // Add if you compute this in JSON
+    document.getElementById('Ещё значение').textContent = 'N/A'; // Add if you compute this in JSON
 }
 
 // Populate table
