@@ -22,7 +22,6 @@ taps = 0
 while True:
     # Прокрутка вниз
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(0.5)
     print("WAITED BEFORE CLICK!")
     try:
         button = driver.find_element(By.CLASS_NAME, 'popmechanic-close')
@@ -34,26 +33,83 @@ while True:
         taps += 1
         print("CLICKED!")
     # Ожидание загрузки контента
-    time.sleep(0.5)  # Увеличьте время, если контент загружается медленно
+    time.sleep(3)  # Увеличьте время, если контент загружается медленно
     print("WAITED!")
     # Проверка новой высоты страницы
     new_height = driver.execute_script("return document.body.scrollHeight")
-    if new_height == last_height or taps == 1:
+    if new_height == last_height or taps == 10:
         break
-    last_height = new_height
+    #last_height = new_height
 
 
 html_code = driver.page_source
 driver.quit()
 soup = BeautifulSoup(html_code, 'html.parser')
-file = open('data2.txt', 'w')
+file = open('data2.txt', 'w', encoding='utf-8')
 
-names = soup.find_all('a', class_='Text_text__e9ILn Template_title__3vIhm')
-print("NAMESSSSSSSSSSSSSSSSSSSSSSSSSSS")
-for name in names:
-    print(name.text, '\n\n')
-    #file.write(f'{name.text}\n')
+matches = soup.find_all('div', class_='CardTwoBlock_card__GFR2L Template_card__ZnZUD Listing_card__hNL_B')
+print("MATCHES\n\n")
+for matche in matches:
+    match = (f'<html>\n<body>\n{matche}\n<body>\n<html>')
+    soup = BeautifulSoup(match, 'html.parser')
+    name = soup.find('span', class_='Text_text__e9ILn Template_title__3vIhm')
+    try:
+        file.write(f'{name.text}\n')
+    except:
+        file.write(f'{'None'}\n')
 
+    kitchen = soup.find('span', class_='Text_text__e9ILn TypeAndPrice_type-url__5phPv')
+    try:
+        file.write(f'{kitchen.text}\n')
+    except:
+        file.write(f'{'None'}\n')
+
+    time = soup.find('p', class_='Text_text__e9ILn ScheduleAndPrice_schedule__Rv03e')
+    try:
+        file.write(f'{time.text}\n')
+    except:
+        file.write(f'{'None'}\n')
+
+    rate = soup.find('span', class_='Rating_rating__NLDVH')
+    try:
+        file.write(f'{rate.text}\n')
+    except:
+        file.write(f'{'None'}\n')
+
+
+    metro = soup.find('div', class_='Place_metro__sSZ56')
+    try:
+        file.write(f'{metro.text}\n\n')
+    except:
+        file.write(f'{'None'}\n')
+
+
+
+#
+# names = soup.find_all('span', class_='Text_text__e9ILn Template_title__3vIhm')
+# print("NAMESSSSSSSSSSSSSSSSSSSSSSSSSSS")
+# for name in names:
+#     print(name.text, '\n')
+#     #file.write(f'{name.text}\n')
+#
+# kitchens = soup.find_all('span', class_='Text_text__e9ILn TypeAndPrice_type-url__5phPv')
+#
+# print("KITCHENSSSSSSSSSS")
+# for kitchen in kitchens:
+#     print(kitchen.text, '\n')
+#     #file.write(f'{name.text}\n')
+#
+# times = soup.find_all('p', class_='Text_text__e9ILn ScheduleAndPrice_schedule__Rv03e')
+# print("timesSSSS")
+# for time in times:
+#     print(time.text, '\n')
+#     #file.write(f'{name.text}\n')
+#
+# metros = soup.find_all('span', class_='Rating_rating__NLDVH')
+# print("METROOOSSSSS")
+# for metro in metros:
+#     print(metro.text, '\n')
+#     #file.write(f'{name.text}\n')
 # print("RATESSSSSSSSSSSSSSSSSSSSSS")
 # rates = soup.find_all('span', class_='sight-score__value')
 # for rate in rates:
