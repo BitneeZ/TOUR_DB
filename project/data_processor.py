@@ -1,47 +1,23 @@
-import json
 import pandas as pd
+import json
 
-def process_dataset(file_path):
-    # Load dataset using pandas
-    df = pd.read_csv(file_path)
+# Загрузка данных
+places_df = pd.read_csv("C:/Users/pisma/Desktop/TOUR_DB/moscow_attractions_updated.csv", sep=';')
+restaurants_df = pd.read_csv("C:/Users/pisma/Desktop/TOUR_DB/dataset2.csv")
+hotels_df = pd.read_csv("C:/Users/pisma/Desktop/TOUR_DB/dataset_hotel.csv")
 
-    # Ensure required columns exist
-    required_columns = {"labels", "values", "categories"}
-    if not required_columns.issubset(df.columns):
-        raise ValueError(f"Dataset must contain the following columns: {required_columns}")
+# # Выбор важных столбцов
+places_data = places_df[['Name', 'Rate', 'Price', 'Coordinates']].to_dict(orient='records')
+restaurants_data = restaurants_df[['Name', 'Kitchen', 'Time', 'Rate', 'Price']].to_dict(orient='records')
+hotels_data = hotels_df[['Name', 'Rate', 'active_price', 'address', 'metro']].to_dict(orient='records')
 
-    # Extract data for processing
-    labels = df["labels"].tolist()
-    values = df["values"]
-    categories = df["categories"]
+# Объединение данных в JSON
+output_data = {
+    "tourist_places": places_data,
+    "restaurants": restaurants_data,
+    "hotels": hotels_data
+}
 
-    # Calculate overall statistics
-    overall_stats = {
-        "mean": values.mean(),
-        "median": values.median(),
-        "std": values.std(),
-        "min": values.min(),
-        "max": values.max()
-    }
-
-    # Calculate category-wise statistics
-    category_means = values.groupby(categories).mean().to_dict()
-
-    # Prepare data for output
-    data = {
-        "labels": labels,
-        "values": values.tolist(),
-        "categories": categories.tolist(),
-        "statistics": {
-            **overall_stats,
-            "category_means": {str(k): float(v) for k, v in category_means.items()}
-        }
-    }
-
-    # Save to JSON file that will be read by the dashboard
-    with open('data.json', 'w') as f:
-        json.dump(data, f, indent=4)
-
-if __name__ == "__main__":
-    # Replace 'your_dataset.csv' with the path to your CSV file
-    process_dataset("TOUR_DB/tourism_dataset.csv")
+# Сохранение в JSON-файл
+with open("moscow_tourism_data.json", "w", encoding="utf-8") as f:
+    json.dump(output_data, f, indent=4, ensure_ascii=False)
