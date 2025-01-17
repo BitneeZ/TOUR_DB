@@ -161,7 +161,7 @@ function updateCharts() {
 // Load JSON data and initialize
 async function initializeApp() {
   try {
-    const response = await fetch('data.json');
+    const response = await fetch(`data.json?t=${Date.now()}`);
     if (!response.ok) {
       throw new Error('Failed to load data');
     }
