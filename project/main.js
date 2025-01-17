@@ -167,26 +167,28 @@ async function initializeApp() {
     }
     mockData = await response.json();
 
-    // Add click handlers to buttons
+    // Проверка структуры данных
+    if (!mockData[activeCategory]) {
+      throw new Error('Invalid data structure');
+    }
+
+    // Добавляем обработчики для кнопок
     document.querySelectorAll('button').forEach(button => {
       button.addEventListener('click', () => {
-        // Update active button
         document.querySelector('button.active').classList.remove('active');
         button.classList.add('active');
-        
-        // Update charts
         activeCategory = button.dataset.category;
         updateCharts();
       });
     });
 
-    // Initial render
+    // Первичная отрисовка графиков
     updateCharts();
   } catch (error) {
-    console.error('Error loading data:', error);
+    console.error('Ошибка загрузки данных:', error);
     document.querySelector('.container').innerHTML = `
       <h1>Ошибка загрузки данных</h1>
-      <p>Пожалуйста, убедитесь, что файл data.json доступен и содержит корректные данные.</p>
+      <p>Пожалуйста, проверьте, что файл data.json доступен и имеет правильный формат.</p>
     `;
   }
 }
