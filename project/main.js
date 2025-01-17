@@ -161,18 +161,15 @@ function updateCharts() {
 // Load JSON data and initialize
 async function initializeApp() {
   try {
-    const response = await fetch(`data.json?t=${Date.now()}`);
+    const response = await fetch('data.json');
     if (!response.ok) {
       throw new Error('Failed to load data');
     }
     mockData = await response.json();
 
-    // Проверка структуры данных
-    if (!mockData[activeCategory]) {
-      throw new Error('Invalid data structure');
-    }
+    console.log('Loaded data:', mockData); // Добавьте эту строку
 
-    // Добавляем обработчики для кнопок
+    // Add click handlers to buttons
     document.querySelectorAll('button').forEach(button => {
       button.addEventListener('click', () => {
         document.querySelector('button.active').classList.remove('active');
@@ -182,13 +179,12 @@ async function initializeApp() {
       });
     });
 
-    // Первичная отрисовка графиков
     updateCharts();
   } catch (error) {
-    console.error('Ошибка загрузки данных:', error);
+    console.error('Error loading data:', error);
     document.querySelector('.container').innerHTML = `
       <h1>Ошибка загрузки данных</h1>
-      <p>Пожалуйста, проверьте, что файл data.json доступен и имеет правильный формат.</p>
+      <p>Пожалуйста, убедитесь, что файл data.json доступен и содержит корректные данные.</p>
     `;
   }
 }
