@@ -1,116 +1,83 @@
+import csv
 import time
-import requests
 from bs4 import BeautifulSoup
-from lxml import html
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-import re
-
-#task2 https://www.afisha.ru/msk/restaurants/restaurant_list/
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 
 # Инициализация веб-драйвера
 driver = webdriver.Chrome()
 driver.maximize_window()
 
 # Переход на страницу
-driver.get('https://www.afisha.ru/msk/restaurants/restaurant_list/')
-last_height = driver.execute_script("return document.body.scrollHeight")
+driver.get('https://101hotels.com/main/cities/moskva?viewType=tiles&page=1')
 
-# Имитация прокрутки вниз (можно изменить в зависимости от сайта)
-taps = 0
-while True:
-    # Прокрутка вниз
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    print("WAITED BEFORE CLICK!")
-    try:
-        button = driver.find_element(By.CLASS_NAME, 'popmechanic-close')
-        button.click()
-        print('ADD WAS CLOSED!')
-    except:
-        button = driver.find_element(By.CLASS_NAME, 'ButtonLoadMore_show-more-button__FXKXn')
-        button.click()
-        taps += 1
-        print("CLICKED!")
-    # Ожидание загрузки контента
-    time.sleep(3)  # Увеличьте время, если контент загружается медленно
-    print("WAITED!")
-    # Проверка новой высоты страницы
-    new_height = driver.execute_script("return document.body.scrollHeight")
-    if new_height == last_height or taps == 1:
-        break
-    #last_height = new_height
+# Создание CSV файла
+with open('dataset_hotel.csv', mode='w', newline='', encoding='utf-8') as file:
+    writer = csv.writer(file)
 
+    # Запись заголовков столбцов
+    writer.writerow(['Name', 'Rate', 'active_price', 'address', 'metro'])
 
-html_code = driver.page_source
+    taps = 0
+    while True:
+        # Имитация прокрутки вниз
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)  # Ожидание загрузки контента
+
+        # Получение HTML текущей страницы
+        html_code = driver.page_source
+        soup = BeautifulSoup(html_code, 'html.parser')
+
+        # Поиск всех карточек на текущей странице
+        matches = soup.find_all('li', class_='item')
+        for match in matches:
+            soup = BeautifulSoup(str(match), 'html.parser')
+
+            # Название заведения
+            name = soup.find('a', class_='has_query_params')
+            name_text = name.get_text(strip=True) if name else None
+
+            # Рейтинг
+            rate = soup.find('span', class_='d-block rating-value')
+            rate_text = rate.get_text(strip=True) if rate else None
+
+            # Цена
+            active_prices = soup.find('span', class_='price-highlight')
+            active_prices_text = active_prices.get_text(strip=True) if active_prices else None
+
+            # Адрес
+            address = soup.find('span', class_='item-address')
+            address_text = address.get_text(strip=True) if address else None
+
+            # Метро
+            blocks = soup.find_all('div', class_='distance-to')
+            metro_text = None
+            for block in blocks:
+                if block.find('span', class_='icon-metro'):  # Проверяем, что внутри есть элемент с 'icon-metro'
+                    metro = block.find('span', class_='distance tooltip')
+                    if metro:
+                        metro_text = ' '.join(metro.get_text(strip=True).split(' ')[:-1])
+                    break
+
+            # Если метро не найдено, установить значение None
+            if not metro_text:
+                metro_text = None
+
+            # Запись строки данных
+            writer.writerow([name_text, rate_text, active_prices_text, address_text, metro_text])
+
+        print(f"Page {taps + 1} scraped successfully.")
+
+        # Переход на следующую страницу
+        try:
+            next_button = driver.find_element(By.CLASS_NAME, 'page-link.next')
+            next_button.click()
+            taps += 1
+            time.sleep(3)  # Задержка для загрузки следующей страницы
+        except NoSuchElementException:
+            print("Последняя страница достигнута.")
+            break
+
+# Завершение работы с драйвером
 driver.quit()
-soup = BeautifulSoup(html_code, 'html.parser')
-file = open('data2.txt', 'w', encoding='utf-8')
-
-matches = soup.find_all('div', class_='CardTwoBlock_card__GFR2L Template_card__ZnZUD Listing_card__hNL_B')
-print("MATCHES\n\n")
-for matche in matches:
-    match = (f'<html>\n<body>\n{matche}\n<body>\n<html>')
-    soup = BeautifulSoup(match, 'html.parser')
-    name = soup.find('span', class_='Text_text__e9ILn Template_title__3vIhm')
-    try:
-        file.write(f'{name.text}\n')
-    except:
-        file.write(f'{'None'}\n')
-
-    kitchen = soup.find('span', class_='Text_text__e9ILn TypeAndPrice_type-url__5phPv')
-    try:
-        file.write(f'{kitchen.text}\n')
-    except:
-        file.write(f'{'None'}\n')
-
-    time = soup.find('p', class_='Text_text__e9ILn ScheduleAndPrice_schedule__Rv03e')
-    try:
-        file.write(f'{time.text}\n')
-    except:
-        file.write(f'{'None'}\n')
-
-    rate = soup.find('span', class_='Rating_rating__NLDVH')
-    try:
-        file.write(f'{rate.text}\n')
-    except:
-        file.write(f'{'None'}\n')
-
-    price = soup.find('span', {
-        'class': 'PriceRange_price-range-wrap__bRS6r PriceRange_price-range-wrap--black__Z95uY PriceRange_link__UrWzf undefined'})
-    html = (f'<html>\n<body>\n{matche}\n<body>\n<html>')
-    soup = BeautifulSoup(html, 'html.parser')
-    active_prices = soup.find_all('span', {'data-active': 'true'})
-    count = 0
-    for price in active_prices:
-        count += 1
-
-    if count == 1:
-        try:
-            file.write(f'700\n')
-        except:
-            file.write(f'{'None'}\n')
-    elif count == 2:
-        try:
-            file.write(f'700 - 1700\n')
-        except:
-            file.write(f'{'None'}\n')
-    elif count == 3:
-        try:
-            file.write(f'1700 - 3000\n')
-        except:
-            file.write(f'{'None'}\n')
-    elif count == 4:
-        try:
-            file.write(f'3000\n')
-        except:
-            file.write(f'{'None'}\n')
-
-    metro = soup.find('div', class_='Place_metro__sSZ56')
-    try:
-        file.write(f'{metro.text}\n\n')
-    except:
-        file.write(f'{'None'}\n')
-    print('\n')
-
-
