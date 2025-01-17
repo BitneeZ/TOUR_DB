@@ -2,14 +2,14 @@ import pandas as pd
 import json
 
 # Загрузка данных
-places_df = pd.read_csv("C:/Users/pisma/Desktop/TOUR_DB/moscow_attractions_updated.csv", sep=';')
+places_df = pd.read_csv("C:/Users/pisma/Desktop/TOUR_DB/moscow_attractions_updated.csv")
 restaurants_df = pd.read_csv("C:/Users/pisma/Desktop/TOUR_DB/dataset2.csv")
 hotels_df = pd.read_csv("C:/Users/pisma/Desktop/TOUR_DB/dataset_hotel.csv")
 
 # # Выбор важных столбцов
-places_data = places_df[['Name', 'Rate', 'Price', 'Coordinates']].to_dict(orient='records')
+places_data = places_df[['Name', 'Rate', 'Price(rub)']].to_dict(orient='records')
 restaurants_data = restaurants_df[['Name', 'Kitchen', 'Time', 'Rate', 'Price']].to_dict(orient='records')
-hotels_data = hotels_df[['Name', 'Rate', 'active_price', 'address', 'metro']].to_dict(orient='records')
+hotels_data = hotels_df[['Name', 'Rate', 'active_price', 'address']].to_dict(orient='records')
 
 # Объединение данных в JSON
 output_data = {

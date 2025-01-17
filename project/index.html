@@ -1,65 +1,50 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Туризм в Москве</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="dashboard">
-        <header>
-            <h1>Туризм в Москве</h1>
-        </header>
-        
-        <div class="controls">
-            <div class="button-group">
-                <button class="control-btn" data-view="tourist_places">Места</button>
-                <button class="control-btn" data-view="restaurants">Рестораны</button>
-                <button class="control-btn" data-view="hotels">Отели</button>
-            </div>
-        </div>
+  <div class="container">
+    <h1>Туризм в Москве</h1>
 
-        <div class="grid-container">
-            <div class="card">
-                <h2>График 1</h2>
-                <canvas id="chart1"></canvas>
-            </div>
-            
-            <div class="card">
-                <h2>График 2</h2>
-                <canvas id="chart2"></canvas>
-            </div>
-            
-            <div class="card">
-                <h2>Статистика</h2>
-                <div id="stats">
-                    <p>Всего достопримечательностей: <span id="totalRecords">0</span></p>
-                    <p>Среднее кол-во посетителей: <span id="avgValue">0</span></p>
-                    <p>Максимальное кол-во посетителей: <span id="maxValue">0</span></p>
-                    <p>Минимальное кол-во посетителей: <span id="minValue">0</span></p>
-                    <p>Ещё значение: <span id="Ещё значение">0</span></p>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h2>База данных</h2>
-                <div class="table-container">
-                    <table id="dataTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Посетили</th>
-                                <th>Страна</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+    <div class="buttons">
+      <button class="active" data-category="tourist_places">Места</button>
+      <button data-category="restaurants">Рестораны</button>
+      <button data-category="hotels">Отели</button>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="main.js"></script>
+
+    <div class="charts">
+      <div class="chart-container">
+        <canvas id="chart1"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="chart2"></canvas>
+      </div>
+    </div>
+
+    <div class="stats">
+      <h2>Статистика</h2>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <p class="stat-label">Среднее количество посетителей</p>
+          <p class="stat-value" id="avgVisitors">-</p>
+        </div>
+        <div class="stat-item">
+          <p class="stat-label">Средний рейтинг</p>
+          <p class="stat-value" id="avgRating">-</p>
+        </div>
+        <div class="stat-item">
+          <p class="stat-label">Всего мест</p>
+          <p class="stat-value" id="totalPlaces">-</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
 </body>
 </html>
