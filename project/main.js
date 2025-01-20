@@ -357,25 +357,15 @@ function updateCharts() {
 // Function to load data with cache prevention
 async function loadData() {
   try {
-    const timestamp = new Date().getTime();
-    const response = await fetch(`moscow_tourism_data.json?t=${timestamp}`, {
-      method: 'GET',
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      },
-      cache: 'no-store'
-    });
-    
+    const response = await fetch('http://localhost:3000/data'); // Получаем данные с вашего сервера
     if (!response.ok) {
-      throw new Error('Failed to load data');
+      throw new Error('Не удалось загрузить данные');
     }
-    
+
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error loading data:', error);
+    console.error('Ошибка при загрузке данных:', error);
     throw error;
   }
 }
@@ -402,8 +392,8 @@ async function refreshData() {
 
 async function initializeApp() {
   try {
-    // Initial data load
-    await refreshData();
+    // Инициализация данных из MongoDB
+    mockData = await loadData();
 
     // Add click handlers to buttons
     document.querySelectorAll('button').forEach(button => {
@@ -423,10 +413,10 @@ async function initializeApp() {
     setInterval(refreshData, 30000);
 
   } catch (error) {
-    console.error('Error initializing app:', error);
+    console.error('Ошибка инициализации приложения:', error);
     document.querySelector('.container').innerHTML = `
       <h1>Ошибка загрузки данных</h1>
-      <p>Пожалуйста, убедитесь, что файл json доступен и содержит корректные данные.</p>
+      <p>Пожалуйста, убедитесь, что сервер работает и доступен.</p>
     `;
   }
 }
