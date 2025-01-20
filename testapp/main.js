@@ -11,44 +11,80 @@ const filterConfigs = {
   restaurants: [
     { key: 'kitchen', label: 'Кухня', type: 'select' },
     { key: 'minRate', label: 'Минимальный рейтинг', type: 'number', min: 0, max: 10, step: 0.1 },
-    { key: 'maxPrice', label: 'Максимальная цена', type: 'number', min: 0, step: 100 }
+    { key: 'priceRange', label: 'Ценовой диапазон', type: 'select', options: [
+      { value: '700', label: 'до 700' },
+      { value: '700-1700', label: '700-1700' },
+      { value: '1700-3000', label: '1700-3000' },
+      { value: '3000', label: 'от 3000' }
+    ]}
   ],
   hotels: [
     { key: 'minRate', label: 'Минимальный рейтинг', type: 'number', min: 0, max: 10, step: 0.1 },
-    { key: 'maxPrice', label: 'Максимальная цена', type: 'number', min: 0, step: 100 }
+    { key: 'maxPrice', label: 'Максимальная цена', type: 'number', min: 0, step: 1000 }
   ]
 };
+
+// Utility functions
+function normalizePrice(price) {
+  if (!price) return 0;
+  return parseInt(price.toString().replace(/\s/g, ''));
+}
+
+function getPriceRange(price) {
+  const normalizedPrice = normalizePrice(price);
+  if (normalizedPrice <= 700) return '700';
+  if (normalizedPrice <= 1700) return '700-1700';
+  if (normalizedPrice <= 3000) return '1700-3000';
+  return '3000';
+}
+
+// Get unique kitchens from data
+function getUniqueKitchens(data) {
+  const kitchens = new Set();
+  data.forEach(item => {
+    if (item.Kitchen) {
+      kitchens.add(item.Kitchen);
+    }
+  });
+  return Array.from(kitchens).sort();
+}
 
 // Chart configuration
 const chartConfig = {
   tourist_places: {
     chart1: {
       type: 'bar',
-      title: 'Рейтинг мест',
-      getData: (data) => ({
-        labels: data.map(p => p.Name),
-        datasets: [{
-          label: 'Рейтинг',
-          data: data.map(p => p.Rate),
-          backgroundColor: 'rgba(53, 162, 235, 0.5)',
-          borderColor: 'rgb(53, 162, 235)',
-          borderWidth: 1
-        }]
-      })
+      title: 'Стоимость достопримечательностей',
+      getData: (data) => {
+        const sortedData = [...data].sort((a, b) => b['Price(rub)'] - a['Price(rub)']);
+        return {
+          labels: sortedData.map(p => p.Name),
+          datasets: [{
+            label: 'Цена (руб)',
+            data: sortedData.map(p => p['Price(rub)'] || 0),
+            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+            borderColor: 'rgb(53, 162, 235)',
+            borderWidth: 1
+          }]
+        };
+      }
     },
     chart2: {
       type: 'bar',
-      title: 'Стоимость посещения',
-      getData: (data) => ({
-        labels: data.map(p => p.Name),
-        datasets: [{
-          label: 'Цена (руб)',
-          data: data.map(p => p['Price(rub)']),
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
-          borderColor: 'rgb(75, 192, 192)',
-          borderWidth: 1
-        }]
-      })
+      title: 'Рейтинг достопримечательностей',
+      getData: (data) => {
+        const sortedData = [...data].sort((a, b) => b.Rate - a.Rate);
+        return {
+          labels: sortedData.map(p => p.Name),
+          datasets: [{
+            label: 'Рейтинг',
+            data: sortedData.map(p => p.Rate),
+            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+            borderColor: 'rgb(75, 192, 192)',
+            borderWidth: 1
+          }]
+        };
+      }
     }
   },
   restaurants: {
@@ -86,46 +122,89 @@ const chartConfig = {
     chart2: {
       type: 'bar',
       title: 'Рейтинг ресторанов',
-      getData: (data) => ({
-        labels: data.map(p => p.Name),
-        datasets: [{
-          label: 'Рейтинг',
-          data: data.map(p => parseFloat(p.Rate)),
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
-          borderColor: 'rgb(75, 192, 192)',
-          borderWidth: 1
-        }]
-      })
+      getData: (data) => {
+        const sortedData = [...data].sort((a, b) => parseFloat(b.Rate) - parseFloat(a.Rate));
+        return {
+          labels: sortedData.map(p => p.Name),
+          datasets: [{
+            label: 'Рейтинг',
+            data: sortedData.map(p => parseFloat(p.Rate)),
+            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+            borderColor: 'rgb(75, 192, 192)',
+            borderWidth: 1
+          }]
+        };
+      }
     }
   },
   hotels: {
     chart1: {
       type: 'bar',
-      title: 'Рейтинг отелей',
-      getData: (data) => ({
-        labels: data.map(p => p.Name),
-        datasets: [{
-          label: 'Рейтинг',
-          data: data.map(p => p.Rate),
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
-          borderColor: 'rgb(75, 192, 192)',
-          borderWidth: 1
-        }]
-      })
+      title: 'Отели: цены и рейтинги',
+      getData: (data) => {
+        const sortedData = [...data].sort((a, b) => b.Rate - a.Rate);
+        return {
+          labels: sortedData.map(p => p.Name),
+          datasets: [
+            {
+              label: 'Рейтинг',
+              data: sortedData.map(p => p.Rate),
+              backgroundColor: 'rgba(75, 192, 192, 0.5)',
+              borderColor: 'rgb(75, 192, 192)',
+              borderWidth: 1,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Цена (руб)',
+              data: sortedData.map(p => normalizePrice(p.active_price)),
+              backgroundColor: 'rgba(255, 99, 132, 0.5)',
+              borderColor: 'rgb(255, 99, 132)',
+              borderWidth: 1,
+              yAxisID: 'y1'
+            }
+          ]
+        };
+      }
     },
     chart2: {
-      type: 'bar',
-      title: 'Цены отелей',
-      getData: (data) => ({
-        labels: data.map(p => p.Name),
-        datasets: [{
-          label: 'Цена (руб)',
-          data: data.map(p => parseInt(p.active_price.replace(/\s/g, ''))),
-          backgroundColor: 'rgba(255, 99, 132, 0.5)',
-          borderColor: 'rgb(255, 99, 132)',
-          borderWidth: 1
-        }]
-      })
+      type: 'pie',
+      title: 'Распределение цен отелей',
+      getData: (data) => {
+        const priceRanges = {
+          'до 3000': 0,
+          '3000-5000': 0,
+          '5000-10000': 0,
+          'более 10000': 0
+        };
+        
+        data.forEach(hotel => {
+          const price = normalizePrice(hotel.active_price);
+          if (price <= 3000) priceRanges['до 3000']++;
+          else if (price <= 5000) priceRanges['3000-5000']++;
+          else if (price <= 10000) priceRanges['5000-10000']++;
+          else priceRanges['более 10000']++;
+        });
+
+        return {
+          labels: Object.keys(priceRanges),
+          datasets: [{
+            data: Object.values(priceRanges),
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.5)',
+              'rgba(54, 162, 235, 0.5)',
+              'rgba(255, 206, 86, 0.5)',
+              'rgba(75, 192, 192, 0.5)'
+            ],
+            borderColor: [
+              'rgb(255, 99, 132)',
+              'rgb(54, 162, 235)',
+              'rgb(255, 206, 86)',
+              'rgb(75, 192, 192)'
+            ],
+            borderWidth: 1
+          }]
+        };
+      }
     }
   }
 };
@@ -147,11 +226,18 @@ function createFilterControls() {
     let input;
     if (config.type === 'select') {
       input = document.createElement('select');
-      const uniqueValues = [...new Set(mockData[activeCategory].map(item => item[config.key]))];
-      input.innerHTML = `
-        <option value="">Все</option>
-        ${uniqueValues.map(value => `<option value="${value}">${value}</option>`).join('')}
-      `;
+      if (config.key === 'kitchen') {
+        const uniqueKitchens = getUniqueKitchens(mockData[activeCategory]);
+        input.innerHTML = `
+          <option value="">Все</option>
+          ${uniqueKitchens.map(kitchen => `<option value="${kitchen}">${kitchen}</option>`).join('')}
+        `;
+      } else if (config.key === 'priceRange') {
+        input.innerHTML = `
+          <option value="">Все</option>
+          ${config.options.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('')}
+        `;
+      }
     } else {
       input = document.createElement('input');
       input.type = config.type;
@@ -180,15 +266,21 @@ function applyFilters() {
   
   filteredData = mockData[activeCategory].filter(item => {
     if (filters.minRate && parseFloat(item.Rate) < parseFloat(filters.minRate)) return false;
+    
     if (filters.maxPrice) {
       const price = activeCategory === 'tourist_places' 
         ? item['Price(rub)']
-        : activeCategory === 'restaurants'
-          ? parseInt(item.Price.split(' ')[0])
-          : parseInt(item.active_price.replace(/\s/g, ''));
+        : normalizePrice(activeCategory === 'hotels' ? item.active_price : item.Price);
       if (price > parseFloat(filters.maxPrice)) return false;
     }
+    
     if (filters.kitchen && item.Kitchen !== filters.kitchen) return false;
+    
+    if (filters.priceRange) {
+      const itemPriceRange = getPriceRange(item.Price);
+      if (itemPriceRange !== filters.priceRange) return false;
+    }
+    
     return true;
   });
   
@@ -212,7 +304,32 @@ function updateCharts() {
       plugins: {
         legend: { position: 'top' },
         title: { display: true, text: config.chart1.title }
-      }
+      },
+      ...(activeCategory === 'hotels' && config.chart1.type === 'bar' ? {
+        scales: {
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            title: {
+              display: true,
+              text: 'Рейтинг'
+            }
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            title: {
+              display: true,
+              text: 'Цена (руб)'
+            },
+            grid: {
+              drawOnChartArea: false
+            }
+          }
+        }
+      } : {})
     }
   });
 
@@ -232,21 +349,24 @@ function updateCharts() {
 // Function to load data with cache prevention
 async function loadData() {
   try {
+    // Add timestamp to URL to prevent caching
     const timestamp = new Date().getTime();
-    const response = await fetch(`moscow_tourism_data.json?t=${timestamp}`, {
+    const response = await fetch(`data.json?t=${timestamp}`, {
       method: 'GET',
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0'
-      }
+      },
+      cache: 'no-store'
     });
     
     if (!response.ok) {
       throw new Error('Failed to load data');
     }
     
-    return await response.json();
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error('Error loading data:', error);
     throw error;
@@ -292,7 +412,7 @@ async function initializeApp() {
     console.error('Error initializing app:', error);
     document.querySelector('.container').innerHTML = `
       <h1>Ошибка загрузки данных</h1>
-      <p>Пожалуйста, убедитесь, что файл json доступен и содержит корректные данные.</p>
+      <p>Пожалуйста, убедитесь, что файл data.json доступен и содержит корректные данные.</p>
     `;
   }
 }
