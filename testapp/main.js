@@ -426,7 +426,7 @@ async function initializeApp() {
     console.error('Error initializing app:', error);
     document.querySelector('.container').innerHTML = `
       <h1>Ошибка загрузки данных</h1>
-      <p>Пожалуйста, убедитесь, что файл data.json доступен и содержит корректные данные.</p>
+      <p>Пожалуйста, убедитесь, что файл json доступен и содержит корректные данные.</p>
     `;
   }
 }
