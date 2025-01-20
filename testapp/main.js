@@ -2,6 +2,7 @@ let chart1, chart2;
 let activeCategory = 'tourist_places';
 let mockData = null;
 let filteredData = null;
+let currentFilters = {}; // Store current filter values
 
 const filterConfigs = {
   tourist_places: [
@@ -250,6 +251,11 @@ function createFilterControls() {
     input.dataset.filterKey = config.key;
     input.addEventListener('change', applyFilters);
     
+    // Restore filter value if it exists
+    if (currentFilters[config.key]) {
+      input.value = currentFilters[config.key];
+    }
+    
     filterItem.appendChild(label);
     filterItem.appendChild(input);
     filterContainer.appendChild(filterItem);
@@ -257,28 +263,30 @@ function createFilterControls() {
 }
 
 function applyFilters() {
-  const filters = {};
+  // Save current filter values
   document.querySelectorAll('.filter-input').forEach(input => {
     if (input.value) {
-      filters[input.dataset.filterKey] = input.value;
+      currentFilters[input.dataset.filterKey] = input.value;
+    } else {
+      delete currentFilters[input.dataset.filterKey];
     }
   });
   
   filteredData = mockData[activeCategory].filter(item => {
-    if (filters.minRate && parseFloat(item.Rate) < parseFloat(filters.minRate)) return false;
+    if (currentFilters.minRate && parseFloat(item.Rate) < parseFloat(currentFilters.minRate)) return false;
     
-    if (filters.maxPrice) {
+    if (currentFilters.maxPrice) {
       const price = activeCategory === 'tourist_places' 
         ? item['Price(rub)']
         : normalizePrice(activeCategory === 'hotels' ? item.active_price : item.Price);
-      if (price > parseFloat(filters.maxPrice)) return false;
+      if (price > parseFloat(currentFilters.maxPrice)) return false;
     }
     
-    if (filters.kitchen && item.Kitchen !== filters.kitchen) return false;
+    if (currentFilters.kitchen && item.Kitchen !== currentFilters.kitchen) return false;
     
-    if (filters.priceRange) {
+    if (currentFilters.priceRange) {
       const itemPriceRange = getPriceRange(item.Price);
-      if (itemPriceRange !== filters.priceRange) return false;
+      if (itemPriceRange !== currentFilters.priceRange) return false;
     }
     
     return true;
@@ -349,9 +357,8 @@ function updateCharts() {
 // Function to load data with cache prevention
 async function loadData() {
   try {
-    // Add timestamp to URL to prevent caching
     const timestamp = new Date().getTime();
-    const response = await fetch(`data.json?t=${timestamp}`, {
+    const response = await fetch(`moscow_tourism_data.json?t=${timestamp}`, {
       method: 'GET',
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -377,13 +384,18 @@ async function loadData() {
 async function refreshData() {
   try {
     mockData = await loadData();
-    filteredData = null;
-    createFilterControls();
-    updateCharts();
+    // Re-apply filters after data refresh
+    if (Object.keys(currentFilters).length > 0) {
+      applyFilters();
+    } else {
+      filteredData = null;
+      updateCharts();
+    }
+    createFilterControls(); // Recreate controls with preserved values
   } catch (error) {
     document.querySelector('.container').innerHTML = `
       <h1>Ошибка загрузки данных</h1>
-      <p>Пожалуйста, убедитесь, что файл data.json доступен и содержит корректные данные.</p>
+      <p>Пожалуйста, убедитесь, что файл json доступен и содержит корректные данные.</p>
     `;
   }
 }
@@ -399,6 +411,8 @@ async function initializeApp() {
         document.querySelector('button.active').classList.remove('active');
         button.classList.add('active');
         activeCategory = button.dataset.category;
+        // Clear filters when changing category
+        currentFilters = {};
         filteredData = null;
         createFilterControls();
         updateCharts();
