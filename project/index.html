@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Туризм в Москве</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,7 +15,7 @@
     <h1>Туризм в Москве</h1>
 
     <div class="buttons">
-      <button class="active" data-category="tourist_places">Места</button>
+      <button class="active" data-category="tourist_places">Достопримечательности</button>
       <button data-category="restaurants">Рестораны</button>
       <button data-category="hotels">Отели</button>
     </div>
@@ -26,21 +29,10 @@
       </div>
     </div>
 
-    <div class="stats">
-      <h2>Статистика</h2>
-      <div class="stats-grid">
-        <div class="stat-item">
-          <p class="stat-label">Среднее количество посетителей</p>
-          <p class="stat-value" id="avgVisitors">-</p>
-        </div>
-        <div class="stat-item">
-          <p class="stat-label">Средний рейтинг</p>
-          <p class="stat-value" id="avgRating">-</p>
-        </div>
-        <div class="stat-item">
-          <p class="stat-label">Всего мест</p>
-          <p class="stat-value" id="totalPlaces">-</p>
-        </div>
+    <div class="filters">
+      <h2>Фильтры</h2>
+      <div class="filters-grid" id="filterControls">
+        <!-- Filters will be dynamically inserted here -->
       </div>
     </div>
   </div>
