@@ -1,9 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path'); // Подключаем path для работы с путями
 
-// Создаем сервер
+// Создаём сервер
 const app = express();
 const port = 3000;
 
@@ -13,32 +12,54 @@ app.use(cors());
 // Подключаемся к базе данных MongoDB
 mongoose.connect('mongodb://localhost:27017/moscow_tourism', {
   useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log("Подключение к MongoDB успешно!");
-}).catch(err => {
-  console.error("Ошибка подключения к MongoDB:", err);
+  useUnifiedTopology: true,
+})
+  .then(() => {
+    console.log("Подключение к MongoDB успешно!");
+  })
+  .catch(err => {
+    console.error("Ошибка подключения к MongoDB:", err);
+  });
+
+// Схемы для каждой категории
+const TouristPlaceSchema = new mongoose.Schema({
+  Name: String,
+  Rate: Number,
+  "Price(rub)": Number // Учитываем возможность `null` для чисел
 });
 
-// Указываем папку со статическими файлами (где лежит index.html)
-app.use(express.static(path.join(__dirname, 'public')));
+const RestaurantSchema = new mongoose.Schema({
+  Name: String,
+  Kitchen: String,
+  Time: String, // Может быть `null`
+  Rate: String, // Используем `String`, так как в JSON значение иногда "Промо"
+  Price: String // Диапазон цен в формате строки
+});
 
-// Создаем модель для данных
-const TourismData = mongoose.model('TourismData', new mongoose.Schema({
-  category: String,
-  name: String,
-  rate: Number,
-  price: Number,
-  kitchen: String,
-  active_price: Number
-}));
+const HotelSchema = new mongoose.Schema({
+  Name: String,
+  Rate: Number, // Учитываем возможность `null` для чисел
+  active_price: String, // Цены указаны в формате строки с пробелами
+  address: String
+});
 
-// Роут для получения данных
+// Основная схема для всех категорий
+const MoscowTourismSchema = new mongoose.Schema({
+  tourist_places: [TouristPlaceSchema], // Массив объектов
+  restaurants: [RestaurantSchema],     // Массив объектов
+  hotels: [HotelSchema]                // Массив объектов
+});
+
+// Создаём модель
+const TourismData = mongoose.model('TourismData', MoscowTourismSchema);
+
+// Роут для получения всех данных
 app.get('/data', async (req, res) => {
   try {
-    const data = await TourismData.find(); // Извлекаем все данные
-    res.json(data);
+    const data = await TourismData.findOne(); // Извлекаем первый документ из коллекции
+    res.json(data); // Отправляем данные клиенту
   } catch (err) {
+    console.error("Ошибка при извлечении данных:", err);
     res.status(500).json({ error: 'Ошибка при извлечении данных' });
   }
 });
