@@ -355,15 +355,13 @@ function updateCharts() {
 }
 
 // Function to load data with cache prevention
-async function loadData() {
+async function loadData(category) {
   try {
-    const response = await fetch('http://localhost:3000/data'); // Получаем данные с вашего сервера
+    const response = await fetch(`http://localhost:3000/data/${category}`);
     if (!response.ok) {
-      throw new Error('Не удалось загрузить данные');
+      throw new Error('Ошибка загрузки данных');
     }
-
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     console.error('Ошибка при загрузке данных:', error);
     throw error;
@@ -392,33 +390,22 @@ async function refreshData() {
 
 async function initializeApp() {
   try {
-    // Инициализация данных из MongoDB
-    mockData = await loadData();
+    mockData = {
+      tourist_places: await loadData('tourist_places'),
+      restaurants: await loadData('restaurants'),
+      hotels: await loadData('hotels'),
+    };
 
-    // Add click handlers to buttons
-    document.querySelectorAll('button').forEach(button => {
-      button.addEventListener('click', () => {
-        document.querySelector('button.active').classList.remove('active');
-        button.classList.add('active');
-        activeCategory = button.dataset.category;
-        // Clear filters when changing category
-        currentFilters = {};
-        filteredData = null;
-        createFilterControls();
-        updateCharts();
-      });
-    });
-
-    // Set up periodic refresh (every 30 seconds)
-    setInterval(refreshData, 30000);
-
+    createFilterControls();
+    updateCharts();
   } catch (error) {
     console.error('Ошибка инициализации приложения:', error);
     document.querySelector('.container').innerHTML = `
       <h1>Ошибка загрузки данных</h1>
-      <p>Пожалуйста, убедитесь, что сервер работает и доступен.</p>
+      <p>Пожалуйста, убедитесь, что сервер работает.</p>
     `;
   }
 }
+
 
 document.addEventListener('DOMContentLoaded', initializeApp);
