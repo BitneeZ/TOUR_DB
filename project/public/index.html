@@ -1,23 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>Туризм в Москве</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
 <body>
   <div class="container">
     <h1>Туризм в Москве</h1>
 
+    <!-- Уведомление -->
+    <div id="notification" class="notification hidden">
+      Данные обновлены!
+    </div>
+
+    <!-- Время последнего обновления -->
+    <div id="lastUpdated" class="last-updated">
+      Последнее обновление: -
+    </div>
+
+    <!-- Кнопки -->
     <div class="buttons">
       <button class="active" data-category="tourist_places">Достопримечательности</button>
       <button data-category="restaurants">Рестораны</button>
       <button data-category="hotels">Отели</button>
+    </div>
+
+    <!-- Индикация загрузки -->
+    <div id="loading" class="loading hidden">
+      Загрузка данных...
     </div>
 
     <div class="charts">
@@ -36,7 +40,4 @@
       </div>
     </div>
   </div>
-
-  <script src="main.js"></script>
 </body>
-</html>

@@ -123,3 +123,35 @@
     background-color: white;
     cursor: pointer;
   }
+
+  .hidden {
+    display: none;
+  }
+  
+  .notification {
+    padding: 10px;
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    display: none;
+  }
+  
+  .notification.show {
+    display: block;
+  }
+  
+  .last-updated {
+    margin-bottom: 15px;
+    font-style: italic;
+    color: #666;
+  }
+  
+  .loading {
+    font-size: 18px;
+    color: #333;
+    margin: 15px 0;
+    text-align: center;
+  }

@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 
-app.use(express.static(path.join(__dirname, 'public')));
-
+// Создаём сервер
 const app = express();
 const port = 3000;
 
@@ -41,6 +40,7 @@ const HotelSchema = new mongoose.Schema({
   address: String
 });
 
+// Основная схема
 const MoscowTourismSchema = new mongoose.Schema({
   tourist_places: [TouristPlaceSchema],
   restaurants: [RestaurantSchema],
@@ -50,18 +50,25 @@ const MoscowTourismSchema = new mongoose.Schema({
 // Привязываем модель к существующей коллекции 'data'
 const TourismData = mongoose.model('TourismData', MoscowTourismSchema, 'data');
 
-// Роут для получения данных
+// Подключаем папку со статическими файлами
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Маршрут для возврата всех данных из MongoDB
 app.get('/data', async (req, res) => {
   try {
-    const data = await TourismData.findOne(); // Извлекаем данные из коллекции 'data'
-    res.json(data);
+    // Извлекаем данные из MongoDB (первый документ в коллекции)
+    const data = await TourismData.findOne();
+    if (!data) {
+      return res.status(404).json({ error: 'Данные не найдены' });
+    }
+    res.json(data); // Возвращаем весь объект data
   } catch (err) {
-    console.error("Ошибка при извлечении данных:", err);
+    console.error('Ошибка при извлечении данных:', err);
     res.status(500).json({ error: 'Ошибка при извлечении данных' });
   }
 });
 
 // Запуск сервера
 app.listen(port, () => {
-  console.log(`Сервер работает на порту ${port}`);
+  console.log(`Сервер работает на http://localhost:${port}`);
 });
