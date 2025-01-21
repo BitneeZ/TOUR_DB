@@ -1,42 +1,49 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path'); // Подключаем path для работы с путями
 
 // Создаем сервер
 const app = express();
 const port = 3000;
 
-// Настройка CORS (чтобы фронтенд мог взаимодействовать с сервером)
+// Настройка CORS (чтобы ваш фронтенд мог делать запросы к серверу)
 app.use(cors());
 
 // Подключаемся к базе данных MongoDB
 mongoose.connect('mongodb://localhost:27017/moscow_tourism', {
   useNewUrlParser: true,
-  useUnifiedTopology: true,
+  useUnifiedTopology: true
 }).then(() => {
   console.log("Подключение к MongoDB успешно!");
 }).catch(err => {
   console.error("Ошибка подключения к MongoDB:", err);
 });
 
-// Модель для хранения всех категорий
-const TourismData = mongoose.model('TourismData', new mongoose.Schema({}, { strict: false }));
+// Указываем папку со статическими файлами (где лежит index.html)
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Роут для получения данных по категории
-app.get('/data/:category', async (req, res) => {
-  const { category } = req.params;
+// Создаем модель для данных
+const TourismData = mongoose.model('TourismData', new mongoose.Schema({
+  category: String,
+  name: String,
+  rate: Number,
+  price: Number,
+  kitchen: String,
+  active_price: Number
+}));
 
+// Роут для получения данных
+app.get('/data', async (req, res) => {
   try {
-    // Извлекаем данные, которые соответствуют указанной категории
-    const data = await TourismData.find({ category }).exec();
+    const data = await TourismData.find(); // Извлекаем все данные
     res.json(data);
   } catch (err) {
-    console.error("Ошибка при извлечении данных:", err);
     res.status(500).json({ error: 'Ошибка при извлечении данных' });
   }
 });
 
-// Запуск сервера
+// Запускаем сервер
 app.listen(port, () => {
-  console.log(`Сервер работает на http://localhost:${port}`);
+  console.log(`Сервер работает на порту ${port}`);
 });
