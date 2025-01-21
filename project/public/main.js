@@ -1,8 +1,8 @@
 let chart1, chart2;
 let activeCategory = 'tourist_places';
-let mockData = null; // Данные из MongoDB
+let mockData = null;
 let filteredData = null;
-let currentFilters = {}; // Текущие фильтры
+let currentFilters = {}; // Текущие значения фильтров
 
 const filterConfigs = {
   tourist_places: [
@@ -25,10 +25,10 @@ const filterConfigs = {
   ]
 };
 
-// Подключение данных с API
+// Загрузка данных с API
 async function loadData() {
   try {
-    const response = await fetch('/data'); // Подключаемся к серверу
+    const response = await fetch('/data'); // API /data возвращает данные из MongoDB
     if (!response.ok) {
       throw new Error('Ошибка загрузки данных');
     }
@@ -42,10 +42,11 @@ async function loadData() {
 
 // Применение фильтров к данным
 function applyFilters() {
+  const configs = currentFilters;
   filteredData = mockData[activeCategory].filter(item => {
-    if (currentFilters.minRate && item.Rate < currentFilters.minRate) return false;
-    if (currentFilters.maxPrice && item['Price(rub)'] > currentFilters.maxPrice) return false;
-    if (currentFilters.kitchen && item.Kitchen !== currentFilters.kitchen) return false;
+    if (configs.minRate && item.Rate < configs.minRate) return false;
+    if (configs.maxPrice && item['Price(rub)'] > configs.maxPrice) return false;
+    if (configs.kitchen && item.Kitchen !== configs.kitchen) return false;
     return true;
   });
   updateCharts();
@@ -55,8 +56,8 @@ function applyFilters() {
 function createFilterControls() {
   const filterContainer = document.getElementById('filterControls');
   filterContainer.innerHTML = '';
-  const configs = filterConfigs[activeCategory];
 
+  const configs = filterConfigs[activeCategory];
   configs.forEach(config => {
     const wrapper = document.createElement('div');
     wrapper.className = 'filter-item';
@@ -68,10 +69,8 @@ function createFilterControls() {
     let input;
     if (config.type === 'select') {
       input = document.createElement('select');
-      input.innerHTML = `
-        <option value="">Все</option>
-        ${config.options ? config.options.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('') : ''}
-      `;
+      input.innerHTML = `<option value="">Все</option>` +
+        (config.options || []).map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('');
     } else {
       input = document.createElement('input');
       input.type = config.type;
@@ -129,8 +128,8 @@ function updateCharts() {
 // Обновление данных
 async function refreshData() {
   try {
-    mockData = await loadData(); // Получаем данные с сервера
-    filteredData = null;
+    mockData = await loadData(); // Загрузка данных с API
+    filteredData = null; // Сброс фильтров
     createFilterControls(); // Создаём фильтры
     updateCharts(); // Обновляем графики
   } catch (err) {
@@ -143,7 +142,6 @@ async function initializeApp() {
   try {
     await refreshData();
 
-    // Кнопки для переключения категорий
     document.querySelectorAll('button').forEach(button => {
       button.addEventListener('click', () => {
         document.querySelector('button.active').classList.remove('active');
@@ -154,7 +152,7 @@ async function initializeApp() {
       });
     });
 
-    setInterval(refreshData, 30000); // Обновляем данные каждые 30 секунд
+    setInterval(refreshData, 30000); // Автоматическое обновление каждые 30 секунд
   } catch (err) {
     console.error('Ошибка инициализации:', err);
   }
