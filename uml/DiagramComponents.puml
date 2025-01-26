@@ -1,0 +1,19 @@
+@startuml
+package "Frontend" {
+  component [Кнопки] as Buttons
+  component [Графики] as Charts
+  component [Фильтры] as Filters
+}
+
+package "Backend" {
+  component [Обработчик запросов] as RequestHandler
+  database Database
+}
+
+Buttons --> RequestHandler : Нажатие кнопки
+RequestHandler --> Database : Запрос данных
+Database --> RequestHandler : Ответ с данными
+RequestHandler --> Charts : Передача данных для построения графиков
+Filters --> RequestHandler : Применение фильтров
+RequestHandler --> Charts : Обновление графиков после применения фильтров
+@enduml
