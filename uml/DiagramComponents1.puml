@@ -1,0 +1,18 @@
+@startuml
+package "Frontend" {
+  component [Кнопки] as Buttons
+  component [Поле ввода] as InputField
+  component [Статистика] as Statistics
+}
+
+package "Backend" {
+  component [Обработчик запросов] as RequestHandler
+  storage Storage
+}
+
+Buttons --> RequestHandler : Нажатие кнопки
+InputField --> RequestHandler : Ввод числа
+RequestHandler --> Storage : Запрос данных
+Storage --> RequestHandler : Ответ с данными
+RequestHandler --> Statistics : Передача данных для отображения
+@enduml
