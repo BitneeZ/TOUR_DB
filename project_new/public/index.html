@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Туризм в Москве</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Туризм в Москве</h1>
+
+    <div class="buttons">
+      <button class="active" data-category="tourist_places">Достопримечательности</button>
+      <button data-category="restaurants">Рестораны</button>
+      <button data-category="hotels">Отели</button>
+    </div>
+
+    <div class="charts">
+      <div class="chart-container">
+        <canvas id="chart1"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="chart2"></canvas>
+      </div>
+    </div>
+
+    <div class="filters">
+      <h2>Фильтры</h2>
+      <div class="filters-grid" id="filterControls">
+        <!-- Filters will be dynamically inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
